@@ -1,17 +1,11 @@
-# Python based Graphical User Interface Client for Chat Application using Custom Tkinter
-
-# Custom Tkinter for modern GUI- Github: https://github.com/TomSchimansky/CustomTkinter
-# Custom Tkinter documentation: https://github.com/TomSchimansky/CustomTkinter/wiki
-
-# Help with multiple windows: https://github.com/TomSchimansky/CustomTkinter/wiki/CTkToplevel
+# ChatFlow client application
 
 
 
-# ======================== PROTOTYPE CLIENT OF NEURON =============================
 
 
-# Importing the libraries
-# -- command to install: pip install customtkinter --
+
+
 
 
 import customtkinter
@@ -32,33 +26,28 @@ import re
 
 
 
-# ======================================================================================
 
-# Setting the default appearance and color theme
-# Help: https://github.com/TomSchimansky/CustomTkinter/wiki/AppearanceMode
 
 customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("dark-blue")
 
 
-# Path for Image files
 PATH = os.path.dirname(os.path.realpath(__file__))
 
 
-# Host and Port
 HOST = '127.0.0.1'
 PORT = 1234
 
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((HOST, PORT))
-APP_NAME = "NEURON"
+APP_NAME = "ChatFlow"
 
 
-# ======================================================================================
 
 
 class App(customtkinter.CTk):
+    """Main application window."""
 
     WIDTH = 500
     HEIGHT = 400
@@ -74,7 +63,6 @@ class App(customtkinter.CTk):
 
 
 
-        # --------------------- Login Page -----------------------
 
 
         self.loginFrame = customtkinter.CTkFrame(master = self)
@@ -84,11 +72,9 @@ class App(customtkinter.CTk):
         self.loginLabel.pack(pady = 12, padx = 10)
 
 
-        # Username and Password variables
         self.username = StringVar()
         self.password = StringVar()
 
-        # NOTE: Unfortunately, placeholder_text doesn't work in combination with StringVar() T_T
 
 
         self.usernameLabel = customtkinter.CTkLabel(master = self.loginFrame, text = "Username:", text_font = ("Roboto", 12))
@@ -115,7 +101,6 @@ class App(customtkinter.CTk):
         self.signupButton.pack(pady = (3, 12), padx = 5)
 
 
-        # ------------------------------------------------------------
 
 
         self.gui_Done = False
@@ -124,23 +109,20 @@ class App(customtkinter.CTk):
 
 
 
-    # ***********************************************************
 
-    # On closing the window
     def on_closing(self, event = 0):
+        """Close the main window."""
         self.destroy()
 
 
 
-    # ***********************************************************
 
-    # On Logging in
     def login(self):
 
+        """Authenticate user."""
         global auth_mode
         auth_mode = 'Login'
 
-        # Getting the user info from the username and password entries
         global usernameInfo
         global passwordInfo
 
@@ -148,12 +130,11 @@ class App(customtkinter.CTk):
         passwordInfo = self.password.get()
 
         threading.Thread(target=self.receive).start()
-        #threading.Thread(target=self.send).start()
 
 
-    # ****************** Method to recieve file ********************
 
     def receiveFile(self, fileName):
+        """Receive file from server."""
         file = open(fileName,'wb')
         l = client.recv(1024)
         while (l):
@@ -164,9 +145,9 @@ class App(customtkinter.CTk):
         file.close()
 
 
-    # ******************* Method to send file **********************
 
     def sendFile(self, filePath):
+        """Send a file to the server."""
         file = open(filePath,'rb')
         l = file.read(1024)
         while (l):
@@ -177,19 +158,16 @@ class App(customtkinter.CTk):
         client.send('{} : Sent a file {}'.format(usernameInfo,fileName).encode())
 
 
-    # ***********************************************************
-
-    # send() Method
     def send():
+        """Send raw messages to server."""
         while True:
             message = '{} : {}'.format(usernameInfo, input())
             client.send(message.encode())
 
 
-    # ***********************************************************
 
-    #receive() Method
     def receive(self):
+        """Handle incoming messages."""
 
         global textArea
 
@@ -247,23 +225,20 @@ class App(customtkinter.CTk):
 
 
 
-    # ***********************************************************
 
-    # Method for Sign up button
     def SignUpPage(self):
+        """Open sign up window."""
 
         signUpWindow = customtkinter.CTkToplevel(self)
-        signUpWindow.title("Sign up to NEURON")
+        signUpWindow.title("Sign up to ChatFlow")
         signUpWindow.geometry("500x450")
         signUpWindow.minsize(500, 450)
         signUpWindow.maxsize(500, 450)
 
 
-        # Disabling the login window while on the sign up screen
         signUpWindow.grab_set()
 
 
-        # Variables to store registered username, password and email
         global regUser
         global regPass
         global regEmail
@@ -272,15 +247,12 @@ class App(customtkinter.CTk):
         regPass = StringVar()
         regEmail = StringVar()
 
-        # Placeholder_text cannot be used together with StringVar() method.
-        # Maybe it will be implemented in the future versions
-        # Reference: https://github.com/TomSchimansky/CustomTkinter/wiki/CTkEntry
 
 
         signUpFrame = customtkinter.CTkFrame(master = signUpWindow)
         signUpFrame.pack(pady = 20, padx = 60, fill = "both", expand = True)
 
-        signUpWindowLabel = customtkinter.CTkLabel(master = signUpFrame, text = "Sign Up to NEURON", text_font = ("Roboto", 24))
+        signUpWindowLabel = customtkinter.CTkLabel(master = signUpFrame, text = "Sign Up to ChatFlow", text_font = ("Roboto", 24))
         signUpWindowLabel.pack(pady = (12, 10), padx = 10)
 
 
@@ -312,10 +284,9 @@ class App(customtkinter.CTk):
         cancelButton.pack(pady = 6, padx = 5)
 
 
-    # ***********************************************************
 
-    # For Signing up
     def SignUp(self):
+        """Register a new user."""
 
         global auth_mode
         auth_mode = 'Register'
@@ -324,7 +295,6 @@ class App(customtkinter.CTk):
         global passwordInfo
         global emailInfo
 
-        # Getting the info for registering the user
         usernameInfo = regUser.get()
         emailInfo = regEmail.get()
         passwordInfo = regPass.get()
@@ -332,29 +302,23 @@ class App(customtkinter.CTk):
         threading.Thread(target = self.receive).start()
 
 
-    # ***********************************************************
 
     def ChatWindow(self):
+        """Open the main chat UI."""
         print("Chat Window Opened")
 
         mainChat = customtkinter.CTkToplevel(self)
-        mainChat.title("NEURON")
+        mainChat.title("ChatFlow")
         mainChat.geometry("800x500")
         mainChat.minsize(600, 500)
         mainChat.maxsize(1000, 600)
 
 
-        # Getting the paths for Image files
-        send_image = self.load_image("/GUI_Images/chat.png", 20)
-        attach_image = self.load_image("/GUI_Images/add-folder.png", 20)
-        home_image = self.load_image("/GUI_Images/home.png", 20)
 
 
 
 
-        # -------- Creating two frames ---------
 
-        # Configuring 2x1 grid layout for 2 frames
 
         mainChat.grid_columnconfigure(1, weight = 1)
         mainChat.grid_rowconfigure(0, weight = 1)
@@ -372,9 +336,7 @@ class App(customtkinter.CTk):
 
 
 
-        # -------------- Frame 1 ----------------
 
-        # Configuring a 1x8 grid layout inside frame 1
 
         frame1.grid_rowconfigure(0, minsize = 10)
         frame1.grid_rowconfigure(3, weight = 1)
@@ -382,14 +344,13 @@ class App(customtkinter.CTk):
         frame1.grid_rowconfigure(8, minsize = 10)
 
         label1 = customtkinter.CTkLabel(master = frame1,
-                                            text = "NEURON",
+                                            text = "ChatFlow",
                                             text_font = ("Impact Regular", -16))
         label1.grid(row = 1, column = 0, padx = 10, pady = 10)
 
 
 
 
-        # About Button
         aboutButton = customtkinter.CTkButton(master = frame1,
                                                     text = "ABOUT",
                                                     text_color = "white",
@@ -404,7 +365,6 @@ class App(customtkinter.CTk):
 
 
 
-        # Logout and Exit Button
         exitButton = customtkinter.CTkButton(master = frame1,
                                                     text = "Logout and Exit",
                                                     text_color = "white",
@@ -413,14 +373,12 @@ class App(customtkinter.CTk):
                                                     corner_radius = 15,
                                                     hover_color = "dark red",
                                                     fg_color = "red",
-                                                    image = home_image,
                                                     command = self.exitMain)
         exitButton.grid(row = 5, column = 0, padx = 5, pady = 20)
 
 
 
 
-        # Appearance Mode
         modeLabel = customtkinter.CTkLabel(master = frame1,
                                                 text = "Appearance Mode:",
                                                 text_font = ("Franklin Gothic", -14))
@@ -440,9 +398,7 @@ class App(customtkinter.CTk):
 
 
 
-        # -------------- Frame 2 ----------------
 
-        # Configuring 4x6 grid layout inside frame 2
 
         frame2.rowconfigure((0, 1, 2, 3, 4), weight = 1)
         frame2.rowconfigure(6, weight = 1)
@@ -450,7 +406,6 @@ class App(customtkinter.CTk):
         frame2.columnconfigure(6, minsize = 10)
 
 
-        # Text Area
         global textArea
 
         textArea = tkinter.scrolledtext.ScrolledText(mainChat, height = 20)
@@ -460,7 +415,6 @@ class App(customtkinter.CTk):
 
 
 
-        # Text Box
         global signal
         signal = StringVar()
 
@@ -475,28 +429,24 @@ class App(customtkinter.CTk):
 
 
 
-        # Send Message Button
         sendButton = customtkinter.CTkButton(master = frame2,
                                                     width = 20,
                                                     height = 30,
                                                     text = "SEND",
                                                     hover_color = "red",
                                                     text_color = "white",
-                                                    image = send_image,
                                                     command = self.SendMessage)
         sendButton.grid(row = 5, column = 3, padx = 10, pady = (20, 0), sticky = "we")
 
 
 
 
-        # Attach file button
         attachButton = customtkinter.CTkButton(master = frame2,
                                                     width = 20,
                                                     height = 30,
                                                     text = "ATTACH",
                                                     hover_color = "red",
                                                     text_color = "white",
-                                                    image = attach_image,
                                                     command = self.AttachFile)
         attachButton.grid(row = 5, column = 4, padx = 10, pady = (20, 0), sticky = "we")
 
@@ -505,20 +455,13 @@ class App(customtkinter.CTk):
 
 
 
-    # ***********************************************************
-
-    # Method to load the Button Images
-
-    def load_image(self, path, image_size):
-        return ImageTk.PhotoImage(Image.open(PATH + path).resize((image_size, image_size)))
 
 
 
 
-    # ***********************************************************
 
-    # Method to create Top level window for About Button
     def ShowAbout(self):
+        """Display about window."""
 
         aboutWindow = customtkinter.CTkToplevel(self)
         aboutWindow.title("ABOUT")
@@ -526,41 +469,27 @@ class App(customtkinter.CTk):
         aboutWindow.minsize(400, 200)
         aboutWindow.maxsize(400, 200)
 
-        aboutLabel1 = customtkinter.CTkLabel(master = aboutWindow, text = "Neuron is a LAN based chat app built purely using Python!")
+        aboutLabel1 = customtkinter.CTkLabel(master = aboutWindow, text = "ChatFlow is a LAN based chat app built purely using Python!")
         aboutLabel1.grid(row = 0, column = 0, padx = (10, 0), pady = 10)
 
 
-        # To Disable the main window while about window is open, grab_set() method is used
-        # On closing the about window, main window will be automatically re-enabled
         aboutWindow.grab_set()
 
-        # grab_release() method also re-enables a disabled window
-
-
-        # To hide the parent window: withdraw()
-        # To restore it again: deiconify()
-
-        # Hides the main window
-        # self.withdraw()
-
-
-        # NOTE: main window won't get restored on closing the
-        # top level window if the main window was hid using withdraw() method.
 
 
 
-    # ***********************************************************
 
 
-    # Method to logout and exit
+
+
+
+
+
 
     def exitMain(self):
+        """Log out and close the application."""
 
 
-        # For some reason this part took awfully large amount of time and effort
-        # to create, I don't know why...
-        # And I don't know if it's just me but tkinter grid system is somehow
-        # weird, easy, simple and complicated all at the same time.
 
 
         exitConfirm = customtkinter.CTkToplevel(self)
@@ -570,7 +499,6 @@ class App(customtkinter.CTk):
         exitConfirm.maxsize(420, 130)
 
 
-        # Disabling the main window while in the confirmation window
         exitConfirm.grab_set()
 
 
@@ -580,7 +508,6 @@ class App(customtkinter.CTk):
         exitFrame.pack(padx = 0, pady = 10)
 
 
-        # A Label on exit confirmation page
         exitLabel = customtkinter.CTkLabel(master = exitFrame,
                                             text = "Are you sure you want to logout and exit?",
                                             text_font = ("Impact Regular", 14))
@@ -588,7 +515,6 @@ class App(customtkinter.CTk):
 
 
 
-        # Confirmed Exit Button
         confirmButton = customtkinter.CTkButton(master = exitFrame,
                                                 text = "Exit",
                                                 text_color = "white",
@@ -601,7 +527,6 @@ class App(customtkinter.CTk):
 
 
 
-        # Cancel Button
         cancelButton = customtkinter.CTkButton(master = exitFrame,
                                                 text = "Cancel",
                                                 text_color = "white",
@@ -613,15 +538,13 @@ class App(customtkinter.CTk):
         cancelButton.grid(row = 1, column = 1, padx = 0, pady = 10)
 
 
-        # This part's done, FINALLY!!!
 
 
 
-    # ***********************************************************
 
 
-    # Method to change the window mode
     def ChangeAppearance(self, newAppearance):
+        """Switch between dark and light themes."""
 
         if newAppearance == "Light":
             customtkinter.set_appearance_mode("light")
@@ -635,24 +558,21 @@ class App(customtkinter.CTk):
 
 
 
-    # ***********************************************************
 
-    # Method to send message
     def SendMessage(self):
+        """Send a chat message."""
 
         global textmess
         textmess = signal.get()
 
         msg = f"{usernameInfo}: {textmess}"
         client.send(msg.encode('ascii'))
-        # entry1.delete('1.0', 'end')
 
 
 
-    # ***********************************************************
 
-    # Method to attach a file
     def AttachFile(self):
+        """Select a file to send."""
         global fileName
         global filePath
         root = tkinter.Tk()
@@ -663,13 +583,10 @@ class App(customtkinter.CTk):
 
 
 
-    # ***********************************************************
 
 
-# ======================================================================================
 
 if __name__ == "__main__":
     app = App()
     app.mainloop()
 
-# ================================ END OF PROGRAM ======================================

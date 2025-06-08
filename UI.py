@@ -1,14 +1,11 @@
-# New GUI for Application
-
+# Basic sample GUI for ChatFlow
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 
-root = ttk.Window(themename="superhero")
+window = ttk.Window(themename="superhero")
+btn_send = ttk.Button(window, text="Send", bootstyle="success")
+btn_send.pack(side=LEFT, padx=5, pady=10)
+btn_attach = ttk.Button(window, text="Attach", bootstyle="info-outline")
+btn_attach.pack(side=LEFT, padx=5, pady=10)
 
-b1 = ttk.Button(root, text="Submit", bootstyle="success")
-b1.pack(side=LEFT, padx=5, pady=10)
-
-b2 = ttk.Button(root, text="Submit", bootstyle="info-outline")
-b2.pack(side=LEFT, padx=5, pady=10)
-
-root.mainloop()
+window.mainloop()
