@@ -1,9 +1,7 @@
-# Python based Graphical User Interface Client for Chat Application
+# ChatFlow server
 
 
-# ======================== PROTOTYPE SERVER OF NEURON =============================
 
-# Importing the libraries
 
 import socket
 import threading
@@ -11,14 +9,11 @@ import openpyxl
 import datetime
 
 
-# =================================================================================
 
-# Host and Port
 HOST = ''
 PORT = 1234
 
 
-# Excel workbook for storing login data
 userdataworkbook = openpyxl.load_workbook('userdata.xlsx')
 userdata = userdataworkbook.active
 
@@ -30,14 +25,14 @@ server.bind((HOST, PORT))
 server.listen()
 
 
-clients = dict() # Key: Client , Value: Username
+clients = dict() # client socket mapped to username
 
 
 
-# -------------------- Method to Broadcast Message ------------------------
 
 def broadcast(message):
 
+    """Send message to all connected clients."""
     dtnow = datetime.datetime.now()
     time = dtnow.strftime('%H:%M')
     message = message.decode()
@@ -49,9 +44,9 @@ def broadcast(message):
 
 
 
-# -------------------- Method to Handle Clients ---------------------------
 
 def handle(client):
+    """Manage messages from a single client."""
 
     while True:
         try:
@@ -75,17 +70,6 @@ def handle(client):
                 print('outside loop')
                 file.close()
 
-                # print('file closed')
-                # client.send('Receive File Name'.encode())
-                # client.send(fileName.encode())
-                # client.send('Receive File'.encode())
-                # file = open(fileName,'rb')
-                # l = file.read(1024)
-                # while (l):
-                #     broadcast(l)
-                #     l = file.read(1024)
-                # client.send('Completed'.encode())
-                # file.close()
 
             else:
                 message = message.decode()
@@ -106,15 +90,14 @@ def handle(client):
             break
 
 
-# -------------------- Method for Login System ----------------------------
 
 
 def login(client, username, password):
+    """Authenticate an existing user."""
 
     for i in range(1, userdata.max_row + 1):
         if userdata.cell(i, 1).value == username:
             if userdata.cell(i, 3).value == password:
-                #client.send('Login Succesful'.encode())
                 return True
 
             else:
@@ -126,11 +109,11 @@ def login(client, username, password):
 
 
 
-# -------------------- Method for Register System -------------------------
 
 
 
 def register(client, username, email, password):
+    """Create a new account."""
 
     i = userdata.max_row + 1
 
@@ -149,7 +132,6 @@ def register(client, username, email, password):
     return True
 
 
-# ===================================================================================
 
 
 while True:
@@ -157,16 +139,12 @@ while True:
     client, address = server.accept()
     print('Connected with {}'.format(address))
 
-    # client.send('Login or Register?'.encode())
-    # auth_mode = client.recv(1024).decode()
-    # authenticated = False
 
     client.send('Login or Reg'.encode())
     auth_mode = client.recv(1024).decode()
 
 
 
-    # ******************************************
 
     if auth_mode == 'Login':
         client.send('USER'.encode())
@@ -179,7 +157,6 @@ while True:
 
 
 
-    # ******************************************
 
     elif auth_mode == 'Register':
         client.send('USER'.encode())
@@ -195,7 +172,6 @@ while True:
 
 
 
-    # ******************************************
 
     if authenticated == True:
 
@@ -214,11 +190,9 @@ while True:
         broadcast('{} joined the Chat!'.format(username).encode())
         threading.Thread(target = handle, args = (client,)).start()
 
-    # ******************************************
 
     else:
         client.send('Authentication Failed'.encode())
 
 
 
-# ================================= END OF PROGRAM ====================================
